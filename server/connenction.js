@@ -1,9 +1,10 @@
 const mongoose = require ("mongoose")
+require("dotenv").config();
 
 async function ConnectionDB(params) {
     return(
-    //  await mongoose.connect(process.env.MONGODB_URI).then(()=>{
-     await mongoose.connect("mongodb://localhost:27017/MyDatabases").then(()=>{
+     await mongoose.connect(process.env.MONGODB_URI).then(()=>{
+    //  await mongoose.connect("mongodb://localhost:27017/MyDatabases").then(()=>{
         console.log("Mongoose Connected Succesfully");
         
         }).catch((error)=>{

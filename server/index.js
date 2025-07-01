@@ -4,10 +4,11 @@ const urlRouter = require("./routes/url");
 const middleware = require("./middleware/url");
 const cors = require('cors');
 const path = require("path");
+require("dotenv").config();
 
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT;
 
 
 app.use(cors())
