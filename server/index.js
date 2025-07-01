@@ -22,9 +22,9 @@ app.use(express.static(path.join(__dirname, "dist")));
 // Use API routes
 app.use("/api", urlRouter);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "dist", "index.html"));
-// });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}, check: http://localhost:${port}/`);
