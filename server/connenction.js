@@ -2,7 +2,7 @@ const mongoose = require ("mongoose")
 
 async function ConnectionDB(params) {
     return(
-     await mongoose.connect("mongodb://localhost:27017/MyDatabases").then(()=>{
+     await mongoose.connect(process.env.MONGODB_URI).then(()=>{
         console.log("Mongoose Connected Succesfully");
         
         }).catch((error)=>{

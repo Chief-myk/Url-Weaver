@@ -3,17 +3,18 @@ const ConnectionDB = require('./connenction');
 const urlRouter = require("./routes/url");
 const middleware = require("./middleware/url");
 const cors = require('cors');
+const path = require("path");
 
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors())
+app.use(express.json());
 
 app.use(middleware());
 ConnectionDB();
 
-const path = require("path");
 
 app.use(express.static(path.join(__dirname, "dist")));
 
@@ -26,5 +27,5 @@ app.use("/api", urlRouter);
 // });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}, check now on http://localhost:${port}/`);
+  console.log(`Example app listening on port ${port}, check: http://localhost:${port}/`);
 });
