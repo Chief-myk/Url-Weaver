@@ -8,12 +8,60 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [clickCount, setClickCount] = useState(0);
 
+<<<<<<< HEAD
   useEffect(() => {
     axios.get("http://localhost:3001/api").then((result) => {
       console.log(result.data);
       setTransformedUrl(result.data)
     })
   }, [])
+=======
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  // Fetch user history when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUserHistory();
+    }
+  }, [isAuthenticated]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/auth-status`);
+      if (response.data.authenticated) {
+        setIsAuthenticated(true);
+        setUser(response.data.user);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
+
+  const fetchUserHistory = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/history`);
+      setUserHistory(response.data);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setUserHistory([]);
+      } else {
+        console.error("History fetch error:", error);
+      }
+    }
+  };
+>>>>>>> cb4feec (little changes)
 
   const handlePress = async () => {
     try {
@@ -23,13 +71,21 @@ function App() {
         alert("Please enter a URL");
         return;
       }
+<<<<<<< HEAD
       const resp = await axios.post("http://localhost:3001/api", { url: inputUrl })
       const shortUrl = `http://localhost:3001/api/r/${resp.data.shortId}`
       setTransformedUrl(shortUrl)
       
+=======
+
+      const resp = await axios.post(`${BASE_URL}/api/`, { url: inputUrl });
+      const shortUrl = `${BASE_URL}/api/r/${resp.data.shortId}`;
+      setTransformedUrl(shortUrl);
+
+>>>>>>> cb4feec (little changes)
       // Fetch click count for the new URL
       const shortId = resp.data.shortId;
-      const analytics = await axios.get(`http://localhost:3001/api/analytics/${shortId}`);
+      const analytics = await axios.get`${BASE_URL}/api/analytics/${shortId}`);
       setClickCount(analytics.data['Total Clicks']);
     } catch (err) {
       console.log(err);
