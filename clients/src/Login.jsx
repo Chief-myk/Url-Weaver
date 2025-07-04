@@ -11,14 +11,15 @@ const Login = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+    // const BASE_URL = "http://localhost:3001";
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');

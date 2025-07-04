@@ -1,50 +1,46 @@
 const express = require('express');
 const ConnectionDB = require('./connenction');
-<<<<<<< HEAD
-const urlRouter = require("./routes/url");
-const middleware = require("./middleware/url");
-=======
 // const { applyMiddleware, checkAuth, restricedToLoggedInUserOnly } = require("./middleware/index");
 const { applyMiddleware, restrictTo, checkForAuthenTication } = require("./middleware/index")
->>>>>>> cb4feec (little changes)
 const cors = require('cors');
 const path = require("path");
 require("dotenv").config();
 
+const urlRouter = require("./routes/url");
+const userRouter = require("./routes/user")
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3001;
 
-<<<<<<< HEAD
-=======
-const allowedOrigins = [
-  "https://url-weaver-1.onrender.com",
-  "http://localhost:3000",
-];
+  const allowedOrigins = [
+    "https://url-weaver-1.onrender.com",  // Your frontend domain
+    "https://url-weaver.onrender.com",    // Your backend domain (if needed)
+    "http://localhost:3000",              // Local development
+    "http://localhost:5173"               // Vite dev server
+  ];
 
 app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
->>>>>>> cb4feec (little changes)
 
-app.use(cors())
-app.use(express.json());
+// Use the middleware array
+app.use(applyMiddleware);
 
-app.use(middleware());
 ConnectionDB();
-
 
 app.use(express.static(path.join(__dirname, "dist")));
 
+// Routes - Apply checkAuth to all routes to set req.user if authenticated
+// app.use(checkAuth);
+app.use(checkForAuthenTication);
 
-// Use API routes
+// User routes (login, signup, history)
+app.use("/api", userRouter);
+
+// URL routes (protected)
 app.use("/api", urlRouter);
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "dist", "index.html"));
-// });
-
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}, check now on http://localhost:${port}/`);
+  console.log(`Server running on port ${port} check : http://localhost:3001/`);
 });

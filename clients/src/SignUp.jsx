@@ -13,7 +13,7 @@ const SignUp = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -21,19 +21,16 @@ const SignUp = () => {
     }));
   };
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  // const BASE_URL =  "http://localhost:3001";
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL ;
 
-const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-        const response = await axios.post(
-            `${BASE_URL}/api/signup`,  // Changed to match your backend route
-            formData,
-            { withCredentials: true }
-        );
+      const response = await axios.post(`${BASE_URL}/api/signup`, formData, { withCredentials: true });
         
         if (response.status === 201) {  // Changed to match your backend response
             navigate('/login');
@@ -132,5 +129,4 @@ const handleSubmit = async (e: React.FormEvent) => {
     </div>
   );
 };
-
 export default SignUp;

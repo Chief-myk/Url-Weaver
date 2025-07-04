@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from "axios"
 
+// Configure axios defaults
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const BASE_URL =  "http://localhost:3001";
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.withCredentials = true;
+
 function App() {
+  const navigate = useNavigate();
   const [inputUrl, setInputUrl] = useState('');
   const [transformedUrl, setTransformedUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [clickCount, setClickCount] = useState(0);
-
-<<<<<<< HEAD
-  useEffect(() => {
-    axios.get("http://localhost:3001/api").then((result) => {
-      console.log(result.data);
-      setTransformedUrl(result.data)
-    })
-  }, [])
-=======
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+  const [userHistory, setUserHistory] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -32,7 +33,7 @@ function App() {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/auth-status`);
+      const response = await axios.get(`/api/auth-status`);
       if (response.data.authenticated) {
         setIsAuthenticated(true);
         setUser(response.data.user);
@@ -49,7 +50,7 @@ function App() {
 
   const fetchUserHistory = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/history`);
+      const response = await axios.get(`/api/history`);
       setUserHistory(response.data);
     } catch (error) {
       if (error.response?.status === 401) {
@@ -61,9 +62,14 @@ function App() {
       }
     }
   };
->>>>>>> cb4feec (little changes)
 
   const handlePress = async () => {
+    if (!isAuthenticated) {
+      alert("Please login to create short URLs");
+      navigate('/login');
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -71,27 +77,27 @@ function App() {
         alert("Please enter a URL");
         return;
       }
-<<<<<<< HEAD
-      const resp = await axios.post("http://localhost:3001/api", { url: inputUrl })
-      const shortUrl = `http://localhost:3001/api/r/${resp.data.shortId}`
-      setTransformedUrl(shortUrl)
-      
-=======
 
-      const resp = await axios.post(`${BASE_URL}/api/`, { url: inputUrl });
+      const resp = await axios.post(`/api/`, { url: inputUrl });
       const shortUrl = `${BASE_URL}/api/r/${resp.data.shortId}`;
       setTransformedUrl(shortUrl);
 
->>>>>>> cb4feec (little changes)
       // Fetch click count for the new URL
       const shortId = resp.data.shortId;
-      const analytics = await axios.get`${BASE_URL}/api/analytics/${shortId}`);
+      const analytics = await axios.get(`/api/analytics/${shortId}`);
       setClickCount(analytics.data['Total Clicks']);
+
+      // Refresh history
+      fetchUserHistory();
     } catch (err) {
-      console.log(err);
-      throw new Error
-    }
-    finally {
+      console.error("URL creation error:", err);
+      if (err.response?.status === 401) {
+        alert("Please login to create short URLs");
+        navigate('/login');
+      } else {
+        alert("I Think You Already Make Shortcut For this URL So how about Use that Only? ");
+      }
+    } finally {
       setIsLoading(false);
     }
   }
@@ -110,6 +116,19 @@ function App() {
     setInputUrl('');
     setTransformedUrl('');
     setClickCount(0);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Clear cookies by making a request (you might need to add a logout endpoint)
+      document.cookie = "uid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      setIsAuthenticated(false);
+      setUser(null);
+      setUserHistory([]);
+      resetForm();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -140,6 +159,36 @@ function App() {
           <p className="text-gray-600">
             Transform your long URLs into short, memorable links
           </p>
+
+          {/* Authentication Status */}
+          <div className="mt-4 flex justify-center items-center gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">Welcome, {user?.name}!</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded-full hover:bg-red-200 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-sm bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="text-sm bg-purple-100 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-200 transition"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Main Card */}
@@ -244,6 +293,39 @@ function App() {
                     {copied ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* History Section - Only show when authenticated */}
+            {isAuthenticated && (
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold mb-4">Your URL History</h2>
+                {userHistory.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left border">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2">#</th>
+                          <th className="px-4 py-2">Original URL</th>
+                          <th className="px-4 py-2">Short ID</th>
+                          <th className="px-4 py-2">Clicks</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userHistory.map((url, index) => (
+                          <tr key={url._id} className="border-t">
+                            <td className="px-4 py-2">{index + 1}</td>
+                            <td className="px-4 py-2 truncate max-w-xs">{url.RedirectUrl}</td>
+                            <td className="px-4 py-2">{url.shortId}</td>
+                            <td className="px-4 py-2">{url.visitHistory.length}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No URLs created yet. Create your first short URL above!</p>
+                )}
               </div>
             )}
           </div>

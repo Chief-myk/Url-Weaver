@@ -1,3 +1,5 @@
+// connection.js
+
 const mongoose = require ("mongoose")
 require("dotenv").config();
 
@@ -16,9 +18,6 @@ async function ConnectionDB(params) {
 
 
 module.exports = ConnectionDB
-
-
-// const mongoose = require('mongoose');
 
 // const ConnectionDB = async () => {
 //   try {
